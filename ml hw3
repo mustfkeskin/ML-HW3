@@ -1,6 +1,5 @@
 rm(list = ls())
 
-
 data  <- read.csv("/home/mustafa/Desktop/docs.data",header = FALSE,stringsAsFactors = FALSE, sep = " ")
 train_data <- data$V1
 test_data  <- data$V2
@@ -31,26 +30,26 @@ rownames(b) <- letters
 
 
 for(i in 1:length(train_data[[1]])){
-
+    
     kelime        <- strsplit(gsub("\\s+", "", train_data[[1]][i]), '')[[1]] 
     kelime_test   <- strsplit(gsub("\\s+", "", test_data [[1]][i]), '')[[1]] 
     pi[kelime[1]] <- pi[kelime[1]] + 1
-
+    
     if(length(kelime) > 1){
         for(j in 1:(length(kelime) - 1)){
             a[kelime[j],kelime[j + 1]]  <- a[kelime[j], kelime[j + 1 ]] + 1 
-	    b[kelime[j],kelime_test[j]] <- b[kelime[j], kelime_test[j]] + 1
+            b[kelime[j],kelime_test[j]] <- b[kelime[j], kelime_test[j]] + 1
         }
-	    j < j + 1
-    	    b[kelime[j], kelime_test[j]] <- b[kelime[j], kelime_test[j]] + 1	 
+        j < j + 1
+        b[kelime[j], kelime_test[j]] <- b[kelime[j], kelime_test[j]] + 1	 
     }  
 }
 
 
 pi <- pi / sum(pi)
 for(i in 1:length(a)){
-	a[i,] <- a[i,] / sum(a[i,])
-	b[i,] <- b[i,] / sum(b[i,])
+    a[i,] <- a[i,] / sum(a[i,])
+    b[i,] <- b[i,] / sum(b[i,])
 }
 
 
@@ -61,91 +60,38 @@ a  <- as.matrix(a)
 b  <- as.matrix(b)
 pi <- as.matrix(pi)
 
-o               <- strsplit(gsub("\\s+", "", test_data[[1]][i]), '')[[1]]
-sigma           <- matrix(0,nrow = length(o),ncol = harf_sayısı)
-colnames(sigma) <- letters
-sembol          <- letters
-
-for(i in 1:length(pi)){
-    sigma[1,sembol[i]] <- pi[1,sembol[i]] * b[o[1],sembol[i]]
-}
-
-
-for(i in 2:length(o)){
-    for(j in 1:length(sembol)){
-        max <- 0
-        for(k in 1:length((sembol))){
-            gecici <- sigma[i - 1 , sembol[k]] *  a[k , sembol[j]]
-            if(gecici > max){
-                max    <- gecici
+for(k in 1:length(test_data[[1]])){
+    
+    o               <- strsplit(gsub("\\s+", "", test_data[[1]][k]), '')[[1]]
+    print(paste(strsplit(gsub("\\s+", "", train_data[[1]][k]), '')[[1]]))
+    print(paste(o))
+    sigma           <- matrix(0,nrow = length(o),ncol = harf_sayısı)
+    colnames(sigma) <- letters	
+    sembol          <- letters
+    if(length(o) > 1){
+        
+        for(i in 1:length(pi)){
+            sigma[1,sembol[i]] <- pi[1,sembol[i]] * b[o[1],sembol[i]]
+        }
+        
+        
+        for(i in 2:length(o)){
+            for(j in 1:length(sembol)){
+                max <- 0
+                for(k in 1:length((sembol))){
+                    gecici <- sigma[i - 1 , sembol[k]] *  a[k , sembol[j]]
+                    if(gecici > max){
+                        max    <- gecici
+                    }
+                } 
+                sigma[i,sembol[j]] <- max * b[o[i] , sembol[j]]
             }
-        } 
-        sigma[i,sembol[j]] <- max * b[o[i] , sembol[j]]
+        }
+        path <- c()
+        for(i in 1:length(o)){
+            path       <- c(path, names(sigma[i,])[sigma[i,] == max(sigma[i,])][1])
+        }
+        print(paste(path))
+        print(paste(""))
     }
 }
-
-
-
-path <- c()
-for(i in 1:length(o)){
-    path       <- c(path, names(sigma[i,])[sigma[i,] == max(sigma[i,])][1])
-}
-path
-
-
-
-
-
-
-
-
-
-
-
-
-o <- c('s','r','r','s','r')
-
-pi <- c(M = 0.5,L=0.3,H=0.2)
-b  <- c(0.5,0.75,0.25)
-b  <-rbind(b,c(0.5,0.25,0.75))
-colnames(b) <- c('M','H','L')
-rownames(b) <- c('s','r')
-
-
-a <- c(0.5,0.4,0.1)
-a <- rbind(a,c(0.4,0.3,0.3))
-a <- rbind(a,c(0.1,0.4,0.5))
-rownames(a) <- c('H','M','L')
-colnames(a) <- c('H','M','L')
-
-
-sembol           <- c('H','M','L')
-sigma            <- matrix(0,nrow=length(o),ncol=length(sembol))
-colnames(sigma)  <- c('M','H','L')
-
-
-for(i in 1:length(pi)){
-    sigma[1,sembol[i]] <- pi[sembol[i]] * b[o[1],sembol[i]]
-}
-
-
-
-for(i in 2:length(o)){
-    for(j in 1:length(sembol)){
-        max <- 0
-        for(k in 1:length((sembol))){
-            gecici <- sigma[i - 1 , sembol[k]] *  a[k , sembol[j]]
-            if(gecici > max){
-                max    <- gecici
-            }
-        } 
-        sigma[i,sembol[j]] <- max * b[o[i] , sembol[j]]
-    }
-}
-
-
-path <- c()
-for(i in 1:length(o)){
-    path       <- c(path, names(sigma[i,])[sigma[i,] == max(sigma[i,])][1])
-}
-path
