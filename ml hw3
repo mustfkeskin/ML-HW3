@@ -1,0 +1,133 @@
+rm(list = ls())
+
+data  <- read.csv("/home/mustafa/Desktop/docs.data",header = FALSE,stringsAsFactors = FALSE)
+#data  <- read.csv("/home/mustafa/Desktop/docs.data",header = FALSE,stringsAsFactors = FALSE, sep = " ")
+
+data2 <- sapply(data,strsplit, " ")
+data2 <- unlist(data2)
+s <- split(data2, rep(1:2, length = length(data2)[1]))
+
+train_data <- s$`1`
+test_data  <- s$`2`
+
+train_data <- paste(train_data, collapse = '')
+test_data  <- paste(test_data, collapse = '')
+
+test_data  <- strsplit(test_data, "_")
+train_data <- strsplit(train_data, "_")
+
+
+alfabe_pi <- matrix(0,nrow = 1,ncol = 26)
+alfabe_pi <- as.data.frame(alfabe_pi)
+colnames(alfabe_pi) <- letters
+
+
+alfabe_trans <- matrix(0,nrow = 26,ncol = 26)
+alfabe_trans <- as.data.frame(alfabe_trans)
+colnames(alfabe_trans) <- letters
+rownames(alfabe_trans) <- letters
+
+alfabe_emission <- matrix(0,nrow = 26,ncol = 26)
+alfabe_emission <- as.data.frame(alfabe_emission)
+colnames(alfabe_emission) <- letters
+rownames(alfabe_emission) <- letters
+
+
+for(i in 1:length(train_data[[1]])){
+
+    kelime      <- strsplit(gsub("\\s+", "", train_data[[1]][i]), '')[[1]] 
+    kelime_test <- strsplit(gsub("\\s+", "", test_data [[1]][i]), '')[[1]] 
+
+    alfabe_pi[kelime[1]]                       <- alfabe_pi[kelime[1]] + 1
+
+    if(length(kelime) > 1){
+        for(j in 1:(length(kelime) - 1)){
+            alfabe_trans   [kelime[j],kelime[j + 1]]  <- alfabe_trans   [kelime[j], kelime[j + 1]]  + 1 
+	    alfabe_emission[kelime[j],kelime_test[j]] <- alfabe_emission[kelime[j], kelime_test[j]] + 1
+        }
+	    j < j + 1
+    	    alfabe_emission[kelime[j], kelime_test[j]] <- alfabe_emission[kelime[j], kelime_test[j]] + 1	 
+    }  
+}
+
+
+alfabe_pi <- alfabe_pi / sum(alfabe_pi)
+
+for(i in 1:length(alfabe_trans)){
+	alfabe_trans[i,]    <- alfabe_trans[i,]    / sum(alfabe_trans[i,])
+	alfabe_emission[i,] <- alfabe_emission[i,] / sum(alfabe_emission[i,])
+}
+
+
+
+
+
+
+
+
+sigma <- matrix(0,nrow = 1,ncol = 26)
+sigma <- as.data.frame(sigma)
+colnames(asigma) <- letters
+
+for(i in 1:length(sigma)){
+    sigma[i] <- alfabe_pi[i] * alfabe_emission[kelime_test[1], i]
+}
+
+
+
+
+o <- c('s','r','r','s','r')
+
+pi <- c(M = 0.5,L=0.3,H=0.2)
+b  <- c(0.5,0.75,0.25)
+b  <-rbind(b,c(0.5,0.25,0.75))
+colnames(b) <- c('M','H','L')
+rownames(b) <- c('s','r')
+
+
+a <- c(0.5,0.4,0.1)
+a <- rbind(a,c(0.4,0.3,0.3))
+a <- rbind(a,c(0.1,0.4,0.5))
+rownames(a) <- c('H','M','L')
+colnames(a) <- c('H','M','L')
+
+
+sembol           <- c('H','M','L')
+sigma            <- matrix(0,nrow=length(o),ncol=length(sembol))
+colnames(sigma)  <- c('M','H','L')
+
+
+for(i in 1:length(pi)){
+    sigma[1,sembol[i]] <- pi[sembol[i]] * b[o[1],sembol[i]]
+}
+
+
+
+
+
+for(i in 2:length(o)){
+    for(j in 1:length(sembol)){
+        max <- 0
+        for(k in 1:length((sembol))){
+            gecici <- sigma[i - 1 , sembol[k]] *  a[k , sembol[j]]
+            if(gecici > max){
+                max    <- gecici
+            }
+        } 
+        sigma[i,sembol[j]] <- max * b[o[i] , sembol[j]]
+    }
+}
+
+
+
+path <- c()
+for(i in 1:length(o)){
+    path       <- c(path, names(sigma[i,])[sigma[i,] == max(sigma[i,])][1])
+}
+path
+
+
+
+
+
+
