@@ -1,0 +1,46 @@
+o <- c('s','r','r','s','r')
+
+pi <- c(M = 0.5,L=0.3,H=0.2)
+b  <- c(0.5,0.75,0.25)
+b  <-rbind(b,c(0.5,0.25,0.75))
+colnames(b) <- c('M','H','L')
+rownames(b) <- c('s','r')
+
+
+a <- c(0.5,0.4,0.1)
+a <- rbind(a,c(0.4,0.3,0.3))
+a <- rbind(a,c(0.1,0.4,0.5))
+rownames(a) <- c('H','M','L')
+colnames(a) <- c('H','M','L')
+
+
+sembol           <- c('H','M','L')
+sigma            <- matrix(0,nrow=length(o),ncol=length(sembol))
+colnames(sigma)  <- c('M','H','L')
+
+
+for(i in 1:length(pi)){
+    sigma[1,sembol[i]] <- pi[sembol[i]] * b[o[1],sembol[i]]
+}
+
+
+
+for(i in 2:length(o)){
+    for(j in 1:length(sembol)){
+        max <- 0
+        for(k in 1:length((sembol))){
+            gecici <- sigma[i - 1 , sembol[k]] *  a[k , sembol[j]]
+            if(gecici > max){
+                max    <- gecici
+            }
+        } 
+        sigma[i,sembol[j]] <- max * b[o[i] , sembol[j]]
+    }
+}
+
+
+path <- c()
+for(i in 1:length(o)){
+    path       <- c(path, names(sigma[i,])[sigma[i,] == max(sigma[i,])][1])
+}
+path
